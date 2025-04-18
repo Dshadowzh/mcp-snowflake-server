@@ -1,6 +1,7 @@
 import importlib.metadata
 import json
 import logging
+import datetime
 import os
 from functools import wraps
 from typing import Any, Callable
@@ -221,10 +222,25 @@ async def handle_read_query(arguments, db, write_detector, *_):
         raise ValueError("Calls to read_query should not contain write operations")
 
     data, data_id = await db.execute_query(arguments["query"])
+    
+    # 处理日期类型数据
+    processed_data = []
+    for row in data:
+        processed_row = {}
+        for key, value in row.items():
+            if isinstance(value, (datetime.date, datetime.datetime)):
+                processed_row[key] = value.isoformat()
+            else:
+                processed_row[key] = value
+        processed_data.append(processed_row)
+    
+    log_data = str(processed_data)[:500] + "..." if len(str(processed_data)) > 500 else str(processed_data)
+    logger.info(f"Processed query result (truncated): {log_data}")
+
     output = {
         "type": "data",
         "data_id": data_id,
-        "data": data,
+        "data": processed_data,
     }
     yaml_output = data_to_yaml(output)
     json_output = json.dumps(output)
