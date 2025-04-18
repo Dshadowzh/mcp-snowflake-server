@@ -73,7 +73,7 @@ def get_model(model_name):
     elif model_name == "seed-1.5-thinking":
         client = wrap_openai(AsyncOpenAI(
             base_url = "https://ark.cn-beijing.volces.com/api/v3",
-            api_key=os.getenv("ARK_API_KEY", "fa0a6c96-eeee-4bc4-b9ae-67ab6be0cf23")
+            api_key=os.getenv("ARK_API_KEY")
         ))
         model = OpenAIChatCompletionsModel(
             model="ep-20250417143015-qkxhv",
